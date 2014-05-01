@@ -184,7 +184,7 @@ public class KryoServer {
             cardStats.add(stat21);
             Stats stat22 = new Stats(8, 8, 8, "ragnarosfirelord");
             cardStats.add(stat22);
-            Stats stat23 = new Stats(9, 9, 9, "malygos");
+            Stats stat23 = new Stats(9, 7, 9, "malygos");
             cardStats.add(stat23);
             Stats stat24 = new Stats(3, 2, 4, "dalaranmage");
             cardStats.add(stat24);
