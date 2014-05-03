@@ -86,18 +86,18 @@ public class KryoServer {
                 if (object instanceof ActionMessage) {
                     ActionMessage msg = (ActionMessage) object;
                     if (msg.action.equals(ActionMessage.START)) {
-                        Player player= new Player(!connection.firstTurn);
+                        Player player = new Player(!connection.firstTurn);
                         sendCard((GameConnection) connection.enemy);
                         sendCard((GameConnection) connection.enemy);
-                        
-                        if(connection.firstTurn){
-                           player.setCrystalsLeft(0);
-                        }else{
-                           player.setCrystalsLeft(1);
+
+                        if (connection.firstTurn) {
+                            player.setCrystalsLeft(0);
+                        } else {
+                            player.setCrystalsLeft(1);
                         }
-                       
+
                         connection.enemy.sendTCP(player);
-                    }else if(msg.action.equals(ActionMessage.PASS_TURN)){
+                    } else if (msg.action.equals(ActionMessage.PASS_TURN)) {
                         sendCard((GameConnection) connection.enemy);
                         connection.enemy.sendTCP(msg);
                     }
@@ -106,18 +106,30 @@ public class KryoServer {
                 if (object instanceof Stats) {
                     Stats card = (Stats) object;
                     //if (card.getCardAction().equals(Stats.CARD_ACTION_NEW_ENEMY_CARD)) {
-                        connection.enemy.sendTCP(card);
+                    connection.enemy.sendTCP(card);
                     //} else if (card.getCardAction().equals(Stats.CARD_ACTION_ATTACKED_CARD)) {
                     //} else if (card.getCardAction().equals(Stats.CARD_ACTION_ATTACKING_CARD)) {
                     //} else if (card.getCardAction().equals(Stats.CARD_ACTION_ATTACK_PLAYER)) {
-                   // }
+                    // }
 
                     return;
                 }
-                
-                if(object instanceof Player){
+
+                if (object instanceof Player) {
                     connection.enemy.sendTCP(object);
                 }
+            }
+
+            public void disconnected(Connection connection) {
+               
+                 GameConnection c = (GameConnection) connection;
+                 if(c.enemy!=null){
+                     Network.ActionMessage sendAction = new Network.ActionMessage();
+                     sendAction.action=ActionMessage.DISCONNECT;
+                     c.enemy.sendTCP(sendAction);
+                 }else{
+                     notYetInGame.remove(c);
+                 }
             }
         });
         server.bind(Network.port);
@@ -218,7 +230,6 @@ public class KryoServer {
         player.sendTCP(player.playerCards.get(rng));
         player.playerCards.remove(rng);
     }
-
 
     public static void main(String[] args) throws IOException {
         Log.set(Log.LEVEL_DEBUG);
