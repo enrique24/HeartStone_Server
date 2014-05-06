@@ -225,10 +225,16 @@ public class KryoServer {
 
     //Choose a random 'card' and sends it to the correspondant player
     private void sendCard(GameConnection player) {
-        int rng = (int) (Math.random() * player.playerCards.size());
-        player.playerCards.get(rng).setCardAction(Stats.CARD_ACTION_NEW_CARD);
-        player.sendTCP(player.playerCards.get(rng));
-        player.playerCards.remove(rng);
+        if(player.playerCards.size()>0){
+            int rng = (int) (Math.random() * player.playerCards.size());
+            player.playerCards.get(rng).setCardAction(Stats.CARD_ACTION_NEW_CARD);
+            player.sendTCP(player.playerCards.get(rng));
+            player.playerCards.remove(rng);
+        }else{
+            Stats stat=new Stats(0, 1, 1, null);
+            stat.setCardAction(Stats.NO_MORE_CARDS);
+            player.sendTCP(stat);
+        }
     }
 
     public static void main(String[] args) throws IOException {
