@@ -2,6 +2,7 @@ package heartStone;
 
 import util.Network;
 import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.minlog.Log;
@@ -40,7 +41,7 @@ public class KryoServer {
             public void received(Connection c, Object object) {
                 // We know all connections for this server are actually ChatConnections.
                 GameConnection connection = (GameConnection) c;
-
+                
                 if (object instanceof RegisterName) {
                     System.out.println("hh");
                     // Ignore the object if a client has already registered a name. This is
@@ -101,17 +102,12 @@ public class KryoServer {
                         sendCard((GameConnection) connection.enemy);
                         connection.enemy.sendTCP(msg);
                     }
+                    return;
                 }
 
                 if (object instanceof Stats) {
                     Stats card = (Stats) object;
-                    //if (card.getCardAction().equals(Stats.CARD_ACTION_NEW_ENEMY_CARD)) {
-                    connection.enemy.sendTCP(card);
-                    //} else if (card.getCardAction().equals(Stats.CARD_ACTION_ATTACKED_CARD)) {
-                    //} else if (card.getCardAction().equals(Stats.CARD_ACTION_ATTACKING_CARD)) {
-                    //} else if (card.getCardAction().equals(Stats.CARD_ACTION_ATTACK_PLAYER)) {
-                    // }
-
+                    connection.enemy.sendTCP(card);      
                     return;
                 }
 
