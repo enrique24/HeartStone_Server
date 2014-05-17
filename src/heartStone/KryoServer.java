@@ -2,7 +2,6 @@ package heartStone;
 
 import util.Network;
 import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.minlog.Log;
@@ -14,20 +13,21 @@ import util.Network.ActionMessage;
 import util.Stats;
 
 /**
- *
+ * The server of the game
  * @author Enrique Martín Arenal
- * @fecha 26-abr-2014
- * @enunciado
  */
 public class KryoServer {
 
     Server server;
+    /**
+     * Connections that dont have an enemy asigned
+     */
     ArrayList<Connection> notYetInGame;
-    ArrayList<GameConnection> players;
 
     public KryoServer() throws IOException {
         this.notYetInGame = new ArrayList<>();
         server = new Server() {
+            @Override
             protected Connection newConnection() {
                 // By providing our own connection implementation, we can store per
                 // connection state without a connection ID to state look up.
@@ -38,17 +38,13 @@ public class KryoServer {
         // registered by the same method for both the client and server.
         Network.register(server);
         server.addListener(new Listener() {
+            @Override
             public void received(Connection c, Object object) {
-                // We know all connections for this server are actually ChatConnections.
+                // We know all connections for this server are actually GameConnections.
                 GameConnection connection = (GameConnection) c;
                 
                 if (object instanceof RegisterName) {
-                    System.out.println("hh");
-                    // Ignore the object if a client has already registered a name. This is
-                    // impossible with our client, but a hacker could send messages at any time.
-                    // if (connection.name != null) {
-                    //      return;
-                    //  }
+                    System.out.println("Someone has connected");      
                     // Ignore the object if the name is invalid.
                     String name = ((RegisterName) object).name;
                     if (!name.equals("Start")) {
@@ -107,7 +103,7 @@ public class KryoServer {
 
                 if (object instanceof Stats) {
                     Stats card = (Stats) object;
-                    connection.enemy.sendTCP(card);      
+                    connection.enemy.sendTCP(card);    
                     return;
                 }
 
@@ -116,8 +112,9 @@ public class KryoServer {
                 }
             }
 
+            @Override
             public void disconnected(Connection connection) {
-               
+                 System.out.println("Someone has disconnected");
                  GameConnection c = (GameConnection) connection;
                  if(c.enemy!=null){
                      Network.ActionMessage sendAction = new Network.ActionMessage();
@@ -130,10 +127,13 @@ public class KryoServer {
         });
         server.bind(Network.port);
         server.start();
+        System.out.println("Server started");
 
     }
-
-    // This holds per connection state.
+ 
+    /**
+     * This holds per connection state.
+     */
     static class GameConnection extends Connection {
 
         public String name;
@@ -144,8 +144,11 @@ public class KryoServer {
         public GameConnection() {
             setCardStats(playerCards);
         }
-        //Method invoqued for initialize the cards of each player
-
+        
+        /**
+         * Method invoqued for initialize the cards of each player
+         * @param cardStats 
+         */
         public void setCardStats(ArrayList<Stats> cardStats) {
             //                crystal/attack/hitpoint
             Stats stat1 = new Stats(1, 1, 2, "goldshirefootman");
@@ -198,7 +201,10 @@ public class KryoServer {
             cardStats.add(stat24);
         }
     }
-
+    /**
+     * Checks if anyone is waiting for an enemy
+     * @return true if someone is waiting for an enemy false otherwise
+     */
     synchronized boolean checkFreeConnections() {
         if (notYetInGame.size() > 0) {
             return true;
@@ -206,20 +212,31 @@ public class KryoServer {
             return false;
         }
     }
-
+    /**
+     * 
+     * @return the first connection that still dont have an enemy
+     */
     synchronized Connection getFreeConnection() {
         return notYetInGame.get(0);
     }
-
+    /**
+     * Removes the first connection of the connections that dont have an enemy
+     */
     synchronized void removeFreeConnections() {
         notYetInGame.remove(0);
     }
-
+    /**
+     * Adds a new connection to the list of connection that dont have an enemy
+     * @param con the connection that is going to be added to the list
+     */
     synchronized void addFreeConnections(Connection con) {
         notYetInGame.add(con);
     }
 
-    //Choose a random 'card' and sends it to the correspondant player
+    /**
+     * Choose a random 'card' and sends it to the correspondant player
+     * @param player the connection that is going to receive the card
+     */
     private void sendCard(GameConnection player) {
         if(player.playerCards.size()>0){
             int rng = (int) (Math.random() * player.playerCards.size());
@@ -233,6 +250,11 @@ public class KryoServer {
         }
     }
 
+    /**
+     * Starts the server
+     * @param args
+     * @throws IOException 
+     */
     public static void main(String[] args) throws IOException {
         Log.set(Log.LEVEL_DEBUG);
         new KryoServer();

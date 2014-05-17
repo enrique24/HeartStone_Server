@@ -1,6 +1,11 @@
 package util;
 
-
+/**
+ * Represents the statistics of a card
+ * Used for sending data between server and client
+ * @author Enrique Martín Arenal
+ *
+ */
 public class Stats {
 	private int crystalCost;
 	private int attackPower;
@@ -13,7 +18,7 @@ public class Stats {
 	public static String CARD_ACTION_ATTACKED_CARD="c3";
 	public static String CARD_ACTION_ATTACKING_CARD="c4";
 	public static String CARD_ACTION_ATTACK_PLAYER="c5";
-        public static String NO_MORE_CARDS="c6";
+	public static String NO_MORE_CARDS="c6";
 	
 	
 	
