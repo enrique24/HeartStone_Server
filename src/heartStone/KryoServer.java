@@ -1,5 +1,6 @@
 package heartStone;
 
+import com.esotericsoftware.kryonet.Client;
 import util.Network;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
@@ -128,7 +129,6 @@ public class KryoServer {
         server.bind(Network.port);
         server.start();
         System.out.println("Server started");
-
     }
  
     /**
@@ -247,6 +247,7 @@ public class KryoServer {
             Stats stat=new Stats(0, 1, 1, null);
             stat.setCardAction(Stats.NO_MORE_CARDS);
             player.sendTCP(stat);
+            player.enemy.sendTCP(stat);
         }
     }
 
